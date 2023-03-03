@@ -1,0 +1,2 @@
+[wordpress_server]
+16.16.57.88

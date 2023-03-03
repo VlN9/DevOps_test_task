@@ -1,0 +1,77 @@
+- name: Install docker, dependencies and start project
+  hosts: wordpress_server
+  become: yes
+
+  tasks:
+
+    - block: #==========Redhat=installation==========#
+        - name: Docker installation
+          yum: name=docker state=latest
+
+        - name: start Docker service
+          service: name=docker state=started enabled=yes
+
+        - name: Docker-compose installation
+          shell: curl -L https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m) -o /usr/local/bin/docker-compose
+          args:
+            warn: false
+
+        - name: Change permissions
+          shell: chmod +x /usr/local/bin/docker-compose
+          args:
+            warn: false
+
+        - name: create project folder
+          file:
+            path: /home/ec2-user/decker_wordpress
+            state: directory
+
+      when: ansible_os_family == "RedHat"   
+    
+    - block: #==========Debian=installation==========#
+        - name: dependencies installation
+          shell: apt-get install ca-certificates curl gnupg lsb-release
+          args:
+            warn: false
+
+        - name: create keyrings directory
+          file:
+            path: /etc/apt/keyrings
+            state: directory
+            mode: 0755
+            recurse: yes
+
+        - name: load gpg keys
+          shell: curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+          args:
+            warn: false
+
+        - name: setup repo
+          shell: echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+        # - name: update repos
+        #   apt: name=* state=latest
+
+        - name: Update apt-get repo and cache
+          apt: update_cache=yes force_apt_get=yes cache_valid_time=3600
+
+        - name: installation of Docker and plugins
+          shell: apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin docker-compose
+          args:
+            warn: false
+
+        - name: create project folder
+          file:
+            path: /home/ubuntu/decker_wordpress
+            state: directory
+
+
+      when: ansible_os_family == "Debian"  
+
+    - name: generate compose file
+      template: src=./compose.j2 dest=/home/ubuntu/decker_wordpress/compose.yaml
+
+    - name: start project
+      shell: docker-compose up --build -d
+      args:
+        chdir: /home/ubuntu/decker_wordpress/
