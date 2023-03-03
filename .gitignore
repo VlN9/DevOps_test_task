@@ -1,3 +1,2 @@
-./.terraform/
-.terraform*
-./ansible/hosts.txt
+.terra*
+ansible/hosts.txt

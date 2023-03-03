@@ -35,6 +35,14 @@ variable "server_cidr_rules" {
   type        = list(any)
   default = [
     {
+      description = "SSH rule for server"
+      type        = "ingress"
+      from_port   = 22
+      to_port     = 22
+      protocol    = "tcp"
+      cidr_blocks = ["93.175.223.50/32"]
+    },
+    {
       description = "Egress rule for server"
       type        = "egress"
       from_port   = 0
