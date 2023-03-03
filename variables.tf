@@ -107,6 +107,8 @@ variable "database_connections" {
 #==========Vars=for=server_and_db.tf==========#
 variable "key_name" {
   description = "Key name for SSH connect to server"
+  type = string
+  default = "devops-task-key"
 }
 
 variable "database_config" {
