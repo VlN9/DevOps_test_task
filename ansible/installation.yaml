@@ -27,6 +27,9 @@
             state: directory
             recurse: yes
 
+        - name: copy ssh pub key
+          copy: src=task_key.pub dest=/home/ec2-user/.ssh/task_key.pub
+
       when: ansible_os_family == "RedHat"   
     
     - block: #==========Debian=installation==========#
@@ -63,6 +66,8 @@
             path: /home/ubuntu/decker_wordpress
             state: directory
 
+        - name: copy ssh pub key
+          copy: src=task_key.pub dest=/home/ubuntu/.ssh/task_key.pub
 
       when: ansible_os_family == "Debian"  
 
